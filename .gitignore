@@ -185,3 +185,8 @@ yarn-error.log*
 .DS_Store
 .vscode/
 .idea/
+# Ignore server dependencies
+/server/node_modules/
+
+# Ignore server environment file
+/server/.env
