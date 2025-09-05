@@ -29,7 +29,7 @@ const travellerStories = [
     location: "Varanasi, India",
     photo: "/assets/story2.jpg",
     excerpt:
-      "Wandering the dawn markets along the Ganges with a guide’s insider tips turned my spiritual journey into something unforgettable.",
+      "Wandering the dawn markets along the Ganges with a guide's insider tips turned my spiritual journey into something unforgettable.",
   },
   {
     name: "Yuki Tanaka",
@@ -62,7 +62,7 @@ export default function Home() {
           <Link to="/become-guide" className="hover:underline text-softyellow">
             Become a Guide
           </Link>
-          <Link to="/find-guide" className="hover:underline text-softyellow">
+          <Link to="/login" className="hover:underline text-softyellow">
             Find Your Guide
           </Link>
         </div>
@@ -99,7 +99,7 @@ export default function Home() {
             <Link to="/become-guide" className="btn btn-primary">
               Become a Guide
             </Link>
-            <Link to="/find-guide" className="btn btn-secondary">
+            <Link to="/login" className="btn btn-secondary">
               Find Your Guide
             </Link>
           </div>
@@ -176,7 +176,7 @@ export default function Home() {
       >
         <h3 className="text-3xl font-bold mb-4 text-center">Traveller Stories</h3>
         <p className="mb-8 max-w-xl mx-auto text-center text-brand/80">
-          Real moments, real memories — hear from explorers who’ve walked in local footsteps.
+          Real moments, real memories – hear from explorers who've walked in local footsteps.
         </p>
         <div className="grid md:grid-cols-3 gap-8">
           {travellerStories.map((t, i) => (
@@ -233,7 +233,7 @@ export default function Home() {
               </Link>
             </li>
             <li>
-              <Link to="/find-guide" className="text-softyellow hover:underline">
+              <Link to="/login" className="text-softyellow hover:underline">
                 Find Your Guide
               </Link>
             </li>
