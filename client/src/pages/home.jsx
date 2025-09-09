@@ -96,7 +96,7 @@ export default function Home() {
             Connect with local guides and discover authentic travel experiences you won't find in a brochure.
           </p>
           <div className="flex justify-center gap-4">
-            <Link to="/become-guide" className="btn btn-primary">
+            <Link to="/guide-signup" className="btn btn-primary">
               Become a Guide
             </Link>
             <Link to="/login" className="btn btn-secondary">

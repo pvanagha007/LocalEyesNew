@@ -1,8 +1,10 @@
-// src/pages/Dashboard.jsx
+// src/pages/Dashboard.jsx - Updated with MessageSidebar Integration
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import ChatModal from "../components/ChatModal";
+import MessageSidebar from "../components/MessageSidebar";
 
 // Mock data for destinations and reviews
 const destinationData = [
@@ -15,8 +17,9 @@ const destinationData = [
       "https://images.unsplash.com/photo-1515542622106-78bda8ba0e5b?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1531572753322-ad063cecc140?w=800&h=600&fit=crop"
     ],
-    reviewer: "Marco Chen",
-    reviewText: "My guide Giulia showed me hidden gems beyond the Colosseum - secret underground passages and a local trattoria that's been family-run for 200 years. Absolutely magical experience!",
+    reviewer: "Test Guide",
+    reviewerId: "Ua6z1uTcGJQoo8ucGl6vePvYlDn2", // Test Guide UID
+    reviewText: "A local guide in Rome, I have shown many the hidden gems beyond the Colosseum - secret underground passages and a local trattoria that's been family-run for 200 years. Message me for an absolutely magical experience!",
     rating: 5,
     timeAgo: "2 days ago"
   },
@@ -29,8 +32,9 @@ const destinationData = [
       "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800&h=600&fit=crop",
       "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800&h=600&fit=crop"
     ],
-    reviewer: "Sarah Williams",
-    reviewText: "Raj guided me through the sunrise view of Taj Mahal and shared stories about its architecture that you won't find in guidebooks. The early morning crowd-free experience was priceless.",
+    reviewer: "Raj Veerendar",
+    reviewerId: "guide_raj_veerendar_002",
+    reviewText: "I guided Sarah Williams through the sunrise view of Taj Mahal and shared stories about its architecture that you won't find in guidebooks. The early morning crowd-free experience was priceless.",
     rating: 5,
     timeAgo: "4 days ago"
   },
@@ -44,7 +48,8 @@ const destinationData = [
       "https://images.unsplash.com/photo-1580619305218-8423a7ef79b4?w=800&h=600&fit=crop"
     ],
     reviewer: "Diego Martinez",
-    reviewText: "Ana helped me acclimatize properly before Machu Picchu and took me through ancient Inca trails that tourists never see. Her knowledge of Quechua culture was incredible.",
+    reviewerId: "guide_diego_martinez_003",
+    reviewText: "I helped Ana acclimatize properly before Machu Picchu and took her through ancient Inca trails that tourists never see. Her knowledge of Quechua culture was incredible.",
     rating: 4,
     timeAgo: "1 week ago"
   },
@@ -58,7 +63,8 @@ const destinationData = [
       "https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=800&h=600&fit=crop"
     ],
     reviewer: "Emily Johnson",
-    reviewText: "Jake showed me NYC like a true local - from hidden speakeasies near the Statue of Liberty to the best pizza slice in Brooklyn. Felt like I had a friend in the city!",
+    reviewerId: "guide_emily_johnson_004",
+    reviewText: "I showed Jake NYC like a true local - from hidden speakeasies near the Statue of Liberty to the best pizza slice in Brooklyn. Felt like I had a friend in the city!",
     rating: 5,
     timeAgo: "3 days ago"
   },
@@ -72,7 +78,8 @@ const destinationData = [
       "https://images.unsplash.com/photo-1508964942900-2662e8e2fea0?w=800&h=600&fit=crop"
     ],
     reviewer: "Li Wei",
-    reviewText: "Priya guided me through Singapore's amazing food scene and green spaces around Changi. The hawker center recommendations were spot-on!",
+    reviewerId: "guide_li_wei_005",
+    reviewText: "I guided Priya through Singapore's amazing food scene and green spaces around Changi. The hawker center recommendations were spot-on!",
     rating: 4,
     timeAgo: "5 days ago"
   }
@@ -85,7 +92,7 @@ function StarRating({ rating }) {
       {[1, 2, 3, 4, 5].map((star) => (
         <svg
           key={star}
-          className={`w-4 h-4 ${star <= rating ? 'text-softyellow fill-current' : 'text-gray-300'}`}
+          className={`w-4 h-4 ${star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
           viewBox="0 0 20 20"
         >
           <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
@@ -159,8 +166,8 @@ function ImageCarousel({ images, location }) {
   );
 }
 
-// Review Card Component
-function ReviewCard({ reviewer, reviewText, rating, timeAgo }) {
+// Review Card Component with Message Button
+function ReviewCard({ reviewer, reviewText, rating, timeAgo, reviewerId, onMessage }) {
   return (
     <motion.div 
       className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
@@ -170,7 +177,7 @@ function ReviewCard({ reviewer, reviewText, rating, timeAgo }) {
     >
       <div className="flex items-start space-x-4">
         {/* Profile Picture Placeholder */}
-        <div className="w-12 h-12 bg-gradient-to-br from-brand to-olive rounded-full flex items-center justify-center text-white font-semibold text-lg">
+        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold text-lg">
           {reviewer.split(' ').map(name => name[0]).join('')}
         </div>
         
@@ -178,29 +185,35 @@ function ReviewCard({ reviewer, reviewText, rating, timeAgo }) {
         <div className="flex-1">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <h4 className="font-semibold text-brand">{reviewer}</h4>
+              <h4 className="font-semibold text-green-600">{reviewer}</h4>
               <p className="text-sm text-gray-500">{timeAgo}</p>
             </div>
             <StarRating rating={rating} />
           </div>
           
-          <p className="text-gray-700 leading-relaxed">{reviewText}</p>
+          <p className="text-gray-700 leading-relaxed mb-4">{reviewText}</p>
           
           {/* Engagement buttons */}
-          <div className="flex items-center space-x-6 mt-4 pt-4 border-t border-gray-100">
-            <button className="flex items-center space-x-2 text-gray-500 hover:text-brand transition-colors">
+          <div className="flex items-center space-x-6 pt-4 border-t border-gray-100">
+            <button className="flex items-center space-x-2 text-gray-500 hover:text-green-600 transition-colors">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
               <span className="text-sm">Like</span>
             </button>
-            <button className="flex items-center space-x-2 text-gray-500 hover:text-brand transition-colors">
+            
+            {/* Message Button */}
+            <button 
+              onClick={() => onMessage(reviewer, reviewerId)}
+              className="flex items-center space-x-2 text-gray-500 hover:text-green-600 transition-colors"
+            >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
-              <span className="text-sm">Comment</span>
+              <span className="text-sm">Message</span>
             </button>
-            <button className="flex items-center space-x-2 text-gray-500 hover:text-brand transition-colors">
+            
+            <button className="flex items-center space-x-2 text-gray-500 hover:text-green-600 transition-colors">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
               </svg>
@@ -217,6 +230,10 @@ export default function Dashboard() {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const [showMessageSidebar, setShowMessageSidebar] = useState(false);
+  
+  // Chat Modal State
+  const [chatModalOpen, setChatModalOpen] = useState(false);
+  const [selectedGuide, setSelectedGuide] = useState({ name: '', id: '' });
 
   const handleLogout = async () => {
     try {
@@ -227,15 +244,46 @@ export default function Dashboard() {
     }
   };
 
+  // Handle Message Button Click from Review Card
+  const handleMessageGuide = (guideName, guideId) => {
+    console.log("Opening chat with:", { guideName, guideId });
+    setSelectedGuide({ name: guideName, id: guideId });
+    setChatModalOpen(true);
+    // Close the sidebar when opening a chat from review card
+    setShowMessageSidebar(false);
+  };
+
+  const closeChatModal = () => {
+    setChatModalOpen(false);
+    setSelectedGuide({ name: '', id: '' });
+  };
+
+  const closeMessageSidebar = () => {
+    setShowMessageSidebar(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Top Navigation - LinkedIn Style */}
+      {/* Chat Modal */}
+      <ChatModal 
+        isOpen={chatModalOpen}
+        onClose={closeChatModal}
+        recipientName={selectedGuide.name}
+        recipientId={selectedGuide.id}
+      />
+
+      {/* Message Sidebar */}
+      {showMessageSidebar && (
+        <MessageSidebar onClose={closeMessageSidebar} />
+      )}
+
+      {/* Top Navigation */}
       <nav className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14">
             {/* Logo */}
             <div className="flex items-center space-x-2">
-              <span className="text-2xl font-bold text-brand">LocalEyes</span>
+              <span className="text-2xl font-bold text-green-600">LocalEyes</span>
             </div>
             
             {/* Right side icons */}
@@ -243,25 +291,24 @@ export default function Dashboard() {
               {/* Messages Icon */}
               <button 
                 onClick={() => setShowMessageSidebar(!showMessageSidebar)}
-                className="relative p-2 text-gray-600 hover:text-brand transition-colors"
+                className="relative p-2 text-gray-600 hover:text-green-600 transition-colors"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                 </svg>
-                {/* Notification dot */}
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
               </button>
               
               {/* Profile Icon */}
               <div className="relative group">
-                <button className="w-8 h-8 bg-gradient-to-br from-brand to-olive rounded-full flex items-center justify-center text-white font-semibold">
+                <button className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold">
                   {currentUser?.email?.charAt(0).toUpperCase() || 'U'}
                 </button>
                 
                 {/* Dropdown menu */}
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                   <div className="p-3 border-b border-gray-100">
-                    <p className="text-sm font-medium text-brand truncate">{currentUser?.email}</p>
+                    <p className="text-sm font-medium text-green-600 truncate">{currentUser?.email}</p>
+                    <p className="text-xs text-gray-500 truncate">UID: {currentUser?.uid?.substring(0, 8)}...</p>
                   </div>
                   <button 
                     onClick={handleLogout}
@@ -277,17 +324,18 @@ export default function Dashboard() {
       </nav>
 
       {/* Main Content Area */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-all duration-300 ${showMessageSidebar ? 'mr-80' : ''}`}>
         {/* Welcome Section */}
         <motion.div 
           className="mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-2xl font-bold text-brand mb-2">
+          <h1 className="text-2xl font-bold text-green-600 mb-2">
             Welcome back, {currentUser?.email?.split('@')[0]}!
           </h1>
           <p className="text-gray-600">Discover amazing destinations and connect with local guides</p>
+          <p className="text-sm text-gray-500 mt-1">Your UID: {currentUser?.uid}</p>
         </motion.div>
 
         {/* Feed */}
@@ -306,40 +354,19 @@ export default function Dashboard() {
                 location={destination.location} 
               />
               
-              {/* Review Card */}
+              {/* Review Card with Message Button */}
               <ReviewCard 
                 reviewer={destination.reviewer}
+                reviewerId={destination.reviewerId}
                 reviewText={destination.reviewText}
                 rating={destination.rating}
                 timeAgo={destination.timeAgo}
+                onMessage={handleMessageGuide}
               />
             </motion.div>
           ))}
         </div>
       </div>
-
-      {/* Message Sidebar (Placeholder) */}
-      {showMessageSidebar && (
-        <div className="fixed right-0 top-14 w-80 h-[calc(100vh-3.5rem)] bg-white shadow-xl border-l border-gray-200 z-40">
-          <div className="p-4 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-brand">Messages</h3>
-              <button 
-                onClick={() => setShowMessageSidebar(false)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-          <div className="p-4 text-center text-gray-500">
-            <p>No messages yet.</p>
-            <p className="text-sm mt-2">Start connecting with local guides!</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

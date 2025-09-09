@@ -1,8 +1,8 @@
-// src/firebase/config.js
+// src/firebase/config.js - Storage removed
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
   apiKey: "AIzaSyDcsWQpxJt7o1QTvsHmTgU5bcpEpAFdl3M",
   authDomain: "localeyes-app-f82b1.firebaseapp.com",
@@ -13,9 +13,8 @@ const firebaseConfig = {
   measurementId: "G-RKBV2BLP3T"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase Authentication and get a reference to the service
 export const auth = getAuth(app);
+export const db = getFirestore(app);
 export default app;
